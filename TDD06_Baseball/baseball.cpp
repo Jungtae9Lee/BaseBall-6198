@@ -4,7 +4,7 @@
 using namespace std;
 
 struct Result {
-	bool solved;
+	int solved;
 	int strikes;
 	int balls;
 };
@@ -15,20 +15,20 @@ public:
 		: question(question) {
 	}
 
-	bool isDuplicatedNumber(string guessNumber) {
-		return guessNumber[0] == guessNumber[1] ||
-			guessNumber[0] == guessNumber[2] ||
-			guessNumber[1] == guessNumber[2];
-	}
+	Result guess(string guessNumber) {
+		assertIllegalArgument(guessNumber);
 
-	bool isIncludeChar(const string& guessNumber) {
-		for (char ch : guessNumber) {
-			if (ch >= '0' && ch <= '9') continue;
-			return true;
+		if (guessNumber == question) {
+			return { true, 3, 0 };
 		}
-		return false;
+
+		int solved = false;
+		int strikes = getStrikeCount(guessNumber);
+		int balls = getBallCount(guessNumber);
+		return { solved, strikes, balls };
 	}
 
+private:
 	void assertIllegalArgument(string guessNumber) {
 		if (guessNumber == "") {
 			throw std::invalid_argument("값을 넣어야함");
@@ -44,14 +44,43 @@ public:
 		}
 	}
 
-	Result guess(string guessNumber) {
-		assertIllegalArgument(guessNumber);
-
-		if (guessNumber == question) {
-			return { true, 3, 0 };
+	bool isIncludeChar(const string& guessNumber) {
+		for (char ch : guessNumber) {
+			if (ch >= '0' && ch <= '9') continue;
+			return true;
 		}
+		return false;
 	}
 
-private:
+	bool isDuplicatedNumber(const string& guessNumber) {
+		return guessNumber[0] == guessNumber[1] ||
+			guessNumber[0] == guessNumber[2] ||
+			guessNumber[1] == guessNumber[2];
+	}
+
+	int getStrikeCount(string guessNumber)
+	{
+		int result = 0;
+		for (int i = 0; i < 3; i++) {
+			int index = question.find(guessNumber[i]);
+			if (index == -1) continue;
+			if (index != i) continue;
+			result++;
+		}
+		return result;
+	}
+
+	int getBallCount(string guessNumber)
+	{
+		int result = 0;
+		for (int i = 0; i < 3; i++) {
+			int index = question.find(guessNumber[i]);
+			if (index == -1) continue;
+			if (index == i) continue;
+			result++;
+		}
+		return result;
+	}
+
 	string question;
 };
